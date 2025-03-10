@@ -10,6 +10,8 @@
 #include "../mqtt/mqtt.hpp"
 #include "../button/button.hpp"
 #include "../access_point/access_point.hpp"
+#include "../door/door.hpp"
+#include "../gate/gate.hpp"
 
 /* Task priorities */
 #define WIFI_TASK_PRIORITY 0
@@ -17,6 +19,8 @@
 #define PINPAD_TASK_PRIORITY 2
 #define MQTT_TASK_PRIORITY 5
 #define BUTTON_TASK_PRIORITY 3
+#define DOOR_TASK_PRIORITY 4
+#define GATE_TASK_PRIORITY 6
 
 /* Core assignments */
 #define WIFI_CORE 0
@@ -24,6 +28,8 @@
 #define PINPAD_CORE 0
 #define MQTT_CORE 0
 #define BUTTON_CORE 1
+#define DOOR_CORE 1
+#define GATE_CORE 1
 
 /* Task stack size */
 #define WIFI_TASK_STACK_SIZE 4096
@@ -31,6 +37,8 @@
 #define PINPAD_TASK_STACK_SIZE 4096
 #define MQTT_TASK_STACK_SIZE 4096
 #define BUTTON_TASK_STACK_SIZE 2048
+#define DOOR_TASK_STACK_SIZE 2048 // not sure about it
+#define GATE_TASK_STACK_SIZE 2048
 
 /* Event frequencies in ms */
 #define WIFI_RECONNECT_FREQ 1000
@@ -38,6 +46,8 @@
 #define PINPAD_READ_FREQ 100
 #define MQTT_READ_FREQ 100
 #define BUTTON_READ_FREQ 10
+#define DOOR_READ_FREQ 100
+#define GATE_READ_FREQ 100
 
 /* Button configuration */
 #define BUTTON_PIN 2 // Define the GPIO pin for the button
@@ -110,6 +120,24 @@ void mqttTask(void *pvParameters);
  * @param pvParameters Pointer to parameters passed to the task.
  */
 void buttonTask(void *pvParameters);
+
+/**
+ * @brief Task to handle door servo module activities.
+ *
+ * This task manages the door servo, opening and closing the door based on
+ *
+ * @param pvParameters Pointer to parameters passed to the task.
+ */
+void doorTask(void *pvParameters);
+
+/**
+ * @brief Task to handle gate motor module activities.
+ *
+ * This task manages the gate motor: opening and closing 
+ *
+ * @param pvParameters Pointer to parameters passed to the task.
+ */
+void gateTask(void *pvParameters);
 
 /**
  * @brief Initializes remaining modules after WiFi and MQTT are ready.

@@ -43,17 +43,17 @@ bool security_setup()
     //     return false;
     // }
 
-    // if (!init_smoke_detector())
-    // {
-    //     ESP_LOGE(SCHEDULING_TAG, "Failed to initialize Smoke Detector");
-    //     return false;
-    // }
+    if (!init_smoke_detector())
+    {
+        ESP_LOGE(SCHEDULING_TAG, "Failed to initialize Smoke Detector");
+        return false;
+    }
 
-    // if (!init_scheduling())
-    // {
-    //     ESP_LOGE(SCHEDULING_TAG, "Failed to initialize scheduling");
-    //     return false;
-    // }
+    if (!init_scheduling())
+    {
+        ESP_LOGE(SCHEDULING_TAG, "Failed to initialize scheduling");
+        return false;
+    }
     return true;
 }
 
@@ -207,7 +207,7 @@ void smokeDetectorTask(void *pvParameters)
 {
     while (1)
     {
-        // handle_smoke_detector();
+        handle_smoke_detector();
         vTaskDelay(SMOKE_DETECTOR_READ_FREQ / portTICK_PERIOD_MS);
     }
 }
