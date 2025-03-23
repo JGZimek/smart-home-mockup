@@ -3,47 +3,59 @@
 #include <Arduino.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "esp_log.h"
+
+#include "../network/wifi/wifi.hpp"
+#include "../network/mqtt/mqtt.hpp"
+#include "../network/button/button.hpp"
+#include "../network/access_point/access_point.hpp"
 
 #include "../rfid/rfid.hpp"
 #include "../pinpad/pinpad.hpp"
+#include "../energy_monitor/energy_monitor.hpp"
 
 /* Task priorities */
-#define WIFI_TASK_PRIORITY 0
+#define WIFI_TASK_PRIORITY 3
+#define MQTT_TASK_PRIORITY 1
+#define BUTTON_TASK_PRIORITY 2
+
+#define ENERGY_MONITOR_TASK_PRIORITY 4
 #define RFID_TASK_PRIORITY 1
 #define PINPAD_TASK_PRIORITY 2
-#define MQTT_TASK_PRIORITY 5
-#define BUTTON_TASK_PRIORITY 3
 
 /* Core assignments */
-#define WIFI_CORE 0
-#define RFID_CORE 1
-#define PINPAD_CORE 0
-#define MQTT_CORE 0
-#define BUTTON_CORE 1
+#define WIFI_TASK_CORE 0
+#define MQTT_TASK_CORE 1
+#define BUTTON_TASK_CORE 0
+
+#define ENERGY_MONITOR_TASK_CORE 1
+#define RFID_TASK_CORE 0
+#define PINPAD_TASK_CORE 1
 
 /* Task stack size */
 #define WIFI_TASK_STACK_SIZE 4096
+#define MQTT_TASK_STACK_SIZE 4096
+#define BUTTON_TASK_STACK_SIZE 4096
+
+#define ENERGY_MONITOR_TASK_STACK_SIZE 4096
 #define RFID_TASK_STACK_SIZE 4096
 #define PINPAD_TASK_STACK_SIZE 4096
-#define MQTT_TASK_STACK_SIZE 4096
-#define BUTTON_TASK_STACK_SIZE 2048
 
 /* Event frequencies in ms */
-#define WIFI_RECONNECT_FREQ 1000
-#define RFID_READ_FREQ 300
-#define PINPAD_READ_FREQ 100
-#define MQTT_READ_FREQ 100
-#define BUTTON_READ_FREQ 10
+#define WIFI_EVENT_FREQUENCY 1000
+#define MQTT_EVENT_FREQUENCY 1000
+#define BUTTON_EVENT_FREQUENCY 100
+
+#define ENERGY_MONITOR_EVENT_FREQUENCY 1000
+#define RFID_EVENT_FREQUENCY 100
+#define PINPAD_EVENT_FREQUENCY 100
 
 /**
- * @brief Sets up the ESP32 system, initializes components, and starts scheduling.
+ * @brief Setup function for the ESP32.
  *
- * This function initializes the hardware and software components
- * for the application. If no configuration is found, it starts in Access Point mode
- * to allow the user to input WiFi and MQTT settings. Once the settings are saved,
- * it connects to WiFi and MQTT and proceeds to initialize the remaining modules.
+ * This function initializes the ESP32 hardware and software components.
  *
- * @return true if the setup and initialization were successful, false otherwise.
+ * @return true if setup was successful, false otherwise
  */
 bool esp_setup();
 
@@ -57,39 +69,55 @@ bool esp_setup();
 bool init_scheduling();
 
 /**
- * @brief Task to handle WiFi module activities.
+ * @brief Task function for handling WiFi events.
  *
- * This task manages WiFi connections, monitors the connection status,
- * and attempts reconnection if the connection is lost.
+ * This function is responsible for handling WiFi events in the background.
  *
- * @param pvParameters Pointer to parameters passed to the task.
+ * @param pvParameters pointer to task-specific data structure
  */
 void wifiTask(void *pvParameters);
 
 /**
- * @brief Task to handle RFID module activities.
+ * @brief Task function for handling MQTT events.
  *
- * This task manages RFID card reading and processing.
+ * This function is responsible for handling MQTT events in the background.
  *
- * @param pvParameters Pointer to parameters passed to the task.
+ * @param pvParameters pointer to task-specific data structure
+ */
+void mqttTask(void *pvParameters);
+
+/**
+ * @brief Task function for handling button events.
+ *
+ * This function is responsible for handling button events in the background.
+ *
+ * @param pvParameters pointer to task-specific data structure
+ */
+void buttonTask(void *pvParameters);
+
+/**
+ * @brief Task function for handling energy monitor events.
+ *
+ * This function is responsible for handling energy monitor events in the background.
+ *
+ * @param pvParameters pointer to task-specific data structure
+ */
+void energyMonitorTask(void *pvParameters);
+
+/**
+ * @brief Task function for handling RFID events.
+ *
+ * This function is responsible for handling RFID events in the background.
+ *
+ * @param pvParameters pointer to task-specific data structure
  */
 void rfidTask(void *pvParameters);
 
 /**
- * @brief Task to handle pinpad module activities.
+ * @brief Task function for handling pinpad events.
  *
- * This task manages pinpad keypresses and PIN entry.
+ * This function is responsible for handling pinpad events in the background.
  *
- * @param pvParameters Pointer to parameters passed to the task.
+ * @param pvParameters pointer to task-specific data structure
  */
 void pinpadTask(void *pvParameters);
-
-/**
- * @brief Task to handle MQTT module activities.
- *
- * This task manages MQTT communication with the backend, ensuring
- * the connection is maintained and handling incoming messages.
- *
- * @param pvParameters Pointer to parameters passed to the task.
- */
-void mqttTask(void *pvParameters);
