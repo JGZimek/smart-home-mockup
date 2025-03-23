@@ -50,6 +50,8 @@ bool esp_setup()
         ESP_LOGE(SCHEDULING_TAG, "Scheduling initialization failed.");
         return false;
     }
+
+    ESP_LOGI(SCHEDULING_TAG, "ESP32 system setup completed.");
     return true;
 }
 
