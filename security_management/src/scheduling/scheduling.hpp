@@ -3,65 +3,76 @@
 #include <Arduino.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "esp_log.h"
 
-#include "../pir/pir.hpp"
+#include "../network/wifi/wifi.hpp"
+#include "../network/mqtt/mqtt.hpp"
+#include "../network/button/button.hpp"
+#include "../network/access_point/access_point.hpp"
+
 #include "../buzzer/buzzer.hpp"
 #include "../fire_sensor/fire_sensor.hpp"
-#include "../smoke_detector/smoke_detector.hpp"
+#include "../pir/pir.hpp"
 #include "../reed_relay/reed_relay.hpp"
+#include "../smoke_detector/smoke_detector.hpp"
 #include "../tilt_sensor/tilt_sensor.hpp"
 
 /* Task priorities */
-#define WIFI_TASK_PRIORITY 0
+#define WIFI_TASK_PRIORITY 3
 #define MQTT_TASK_PRIORITY 1
-#define PIR_TASK_PRIORITY 2
-#define BUZZER_TASK_PRIORITY 3
-#define FIRE_SENSOR_TASK_PRIORITY 4
-#define SMOKE_DETECTOR_TASK_PRIORITY 5
-#define REED_RELAY_TASK_PRIORITY 6 // to be improved later (also core assignment)
-#define TILT_SENSOR_TASK_PRIORITY 6 // not sure if this is right priority
+#define BUTTON_TASK_PRIORITY 2
+
+#define PIR_TASK_PRIORITY 4
+#define BUZZER_TASK_PRIORITY 1
+#define FIRE_SENSOR_TASK_PRIORITY 2
+#define SMOKE_DETECTOR_TASK_PRIORITY 3
+#define REED_RELAY_TASK_PRIORITY 5 // to be improved later
+#define TILT_SENSOR_TASK_PRIORITY 6
 
 /* Core assignments */
-#define WIFI_CORE 0
-#define MQTT_CORE 0
-#define PIR_CORE 1
-#define BUZZER_CORE 0
-#define FIRE_SENSOR_CORE 1
-#define SMOKE_DETECTOR_CORE 1
-#define REED_RELAY_CORE 1 // to be improved later
-#define TILT_SENSOR_CORE 1 // not sure if this is right
+#define WIFI_TASK_CORE 0
+#define MQTT_TASK_CORE 1
+#define BUTTON_TASK_CORE 0
+
+#define PIR_TASK_CORE 0
+#define BUZZER_TASK_CORE 1
+#define FIRE_SENSOR_TASK_CORE 0
+#define SMOKE_DETECTOR_TASK_CORE 1
+#define REED_RELAY_TASK_CORE 0
+#define TILT_SENSOR_TASK_CORE 1
 
 /* Task stack size */
 #define WIFI_TASK_STACK_SIZE 4096
 #define MQTT_TASK_STACK_SIZE 4096
+#define BUTTON_TASK_STACK_SIZE 4096
+
 #define PIR_TASK_STACK_SIZE 4096
-#define BUZZER_TASK_STACK_SIZE 2048
-#define FIRE_SENSOR_TASK_STACK_SIZE 2048
-#define SMOKE_DETECTOR_TASK_STACK_SIZE 2048
-#define REED_RELAY_TASK_STACK_SIZE 2048 // to be improved later
-#define TILT_SENSOR_TASK_STACK_SIZE 2048 
+#define BUZZER_TASK_STACK_SIZE 4096
+#define FIRE_SENSOR_TASK_STACK_SIZE 4096
+#define SMOKE_DETECTOR_TASK_STACK_SIZE 4096
+#define REED_RELAY_TASK_STACK_SIZE 4096
+#define TILT_SENSOR_TASK_STACK_SIZE 4096
 
 /* Event frequencies in ms */
-#define WIFI_RECONNECT_FREQ 1000
-#define MQTT_READ_FREQ 100
-#define PIR_READ_FREQ 100
-#define BUZZER_READ_FREQ 100
-#define FIRE_SENSOR_READ_FREQ 100
-#define SMOKE_DETECTOR_READ_FREQ 100
-#define REED_RELAY_READ_FREQ 100 // to be improved later
-#define TILT_SENSOR_READ_FREQ 100
+#define WIFI_EVENT_FREQUENCY 1000
+#define MQTT_EVENT_FREQUENCY 1000
+#define BUTTON_EVENT_FREQUENCY 100
+
+#define PIR_EVENT_FREQUENCY 100
+#define BUZZER_EVENT_FREQUENCY 100
+#define FIRE_SENSOR_EVENT_FREQUENCY 100
+#define SMOKE_DETECTOR_EVENT_FREQUENCY 100
+#define REED_RELAY_EVENT_FREQUENCY 100
+#define TILT_SENSOR_EVENT_FREQUENCY 100
 
 /**
- * @brief Sets up the security system, initializes components, and starts scheduling.
+ * @brief Setup function for the ESP32.
  *
- * This function initializes the hardware and software components
- * for the security system. If no configuration is found, it starts in Access Point mode
- * to allow the user to input WiFi and MQTT settings. Once the settings are saved,
- * it connects to WiFi and MQTT and proceeds to initialize the remaining modules.
+ * This function initializes the ESP32 hardware and software components.
  *
- * @return true if the setup and initialization were successful, false otherwise.
+ * @return true if setup was successful, false otherwise
  */
-bool security_setup();
+esp_setup();
 
 /**
  * @brief Initializes the scheduling system.
@@ -89,6 +100,15 @@ void wifiTask(void *pvParameters);
  * @param pvParameters Task parameters
  */
 void mqttTask(void *pvParameters);
+
+/**
+ * @brief Task that handles button.
+ *
+ * This task is responsible for handling the button.
+ *
+ * @param pvParameters Task parameters
+ */
+void buttonTask(void *pvParameters);
 
 /**
  * @brief Task that handles PIR sensor.
@@ -136,11 +156,10 @@ void smokeDetectorTask(void *pvParameters);
 void reedRelayTask(void *pvParameters);
 
 /**
- * @brief Task that handles tilt snesor.
+ * @brief Task that handles tilt sensor.
  *
  * This task is responsible for handling the tilt sensor.
  *
  * @param pvParameters Task parameters
  */
 void tiltSensorTask(void *pvParameters);
-
