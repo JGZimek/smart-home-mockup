@@ -55,7 +55,7 @@ void handle_door()
     if (digitalRead(buttonDoor) == LOW && !isOpen && !block){
         open_door();
     }
-    if (digitalRead(buttonDoor) == LOW && isOpen){
+    if (digitalRead(buttonDoor) == LOW && isOpen && !block){
         close_door();
     }
 }

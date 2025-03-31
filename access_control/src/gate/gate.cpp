@@ -50,7 +50,7 @@ void handle_gate(){
     if(digitalRead(buttonGate) == LOW && isClosed && !block){
         open_gate();
     }
-    else if(digitalRead(buttonGate) == LOW && !isClosed ){
+    else if(digitalRead(buttonGate) == LOW && !isClosed && !block ){
         close_gate();
     }
 }
