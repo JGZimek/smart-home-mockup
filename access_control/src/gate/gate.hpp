@@ -3,7 +3,8 @@
 #include <Arduino.h>
 #include "esp_log.h"
 #include <ESP32Servo.h>
-#include "../rfid/rfid.hpp"
+#include "../mock_lock/mock_lock.hpp"
+
 
 /**
  * @brief Initializes a Micro Servo using for car gate opening functionality.

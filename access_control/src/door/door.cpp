@@ -13,7 +13,6 @@ bool isOpen = false;
 #define DOOR_TAG "app_door"
 int currentPoz = 0;
 
-bool block = true; // assuming defaultly that there is no RFID card detected
 bool init_door()
 {
     pinMode(buttonDoor, INPUT_PULLUP);
@@ -25,6 +24,7 @@ bool init_door()
 
 void open_door()
 {
+    Serial.println("Opening door");
     for(; currentPoz <= servoOpen; currentPoz += 2)
     {
         doorServo.write(currentPoz);
@@ -35,6 +35,7 @@ void open_door()
 
 void close_door()
 {
+     Serial.println("Closing door");
     for(; currentPoz >= servoClosed; currentPoz -= 2)
     {
         doorServo.write(currentPoz);
@@ -45,17 +46,12 @@ void close_door()
 
 void handle_door()
 {
-    // If RFID card is not detected, the gate is blocked form usage:
-    if (!read_RFID()){
-        block = true;
-    } else{
-        block = false;
-    }    
 
-    if (digitalRead(buttonDoor) == LOW && !isOpen && !block){
+
+    if (digitalRead(buttonDoor) == LOW && !isOpen && mock_lock_open()){
         open_door();
     }
-    if (digitalRead(buttonDoor) == LOW && isOpen && !block){
+    if (digitalRead(buttonDoor) == LOW && isOpen && mock_lock_open()){
         close_door();
     }
 }

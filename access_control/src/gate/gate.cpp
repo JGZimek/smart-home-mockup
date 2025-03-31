@@ -7,7 +7,6 @@
 // bins for the buttons simulating triggers for the gate opening and closing
 int buttonGate = 4; 
 bool isClosed = true; // flag indicating if the gate is closed, default assumed true
-bool block = true; // assuming defaultly that there is no RFID card detected
 
 #define GATE_TAG "app_gate"
 bool init_gate(){
@@ -38,19 +37,14 @@ void close_gate(){
     isClosed = true;
 }
 
+
+
 void handle_gate(){ 
 
-    // If RFID card is not detected, the gate is blocked form usage:
-    if (!read_RFID()){
-        block = true;
-    } else{
-        block = false;
-    }
-
-    if(digitalRead(buttonGate) == LOW && isClosed && !block){
+    if(digitalRead(buttonGate) == LOW && isClosed && mock_lock_open()){
         open_gate();
     }
-    else if(digitalRead(buttonGate) == LOW && !isClosed && !block ){
+    else if(digitalRead(buttonGate) == LOW && !isClosed && mock_lock_open()){
         close_gate();
     }
 }
