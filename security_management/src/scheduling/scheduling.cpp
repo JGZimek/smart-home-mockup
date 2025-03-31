@@ -7,7 +7,7 @@ TaskHandle_t mqttTaskHandle = NULL;
 TaskHandle_t pirTaskHandle = NULL;
 TaskHandle_t buzzerTaskHandle = NULL;
 TaskHandle_t fireSensorTaskHandle = NULL;
-TaskHandle_t smokeDetectorTaskHandle = NULL;
+TaskHandle_t gasDetectorTaskHandle = NULL;
 
 bool security_setup()
 {
@@ -43,9 +43,9 @@ bool security_setup()
     //     return false;
     // }
 
-    if (!init_smoke_detector())
+    if (!init_gas_detector())
     {
-        ESP_LOGE(SCHEDULING_TAG, "Failed to initialize Smoke Detector");
+        ESP_LOGE(SCHEDULING_TAG, "Failed to initialize Gas Detector");
         return false;
     }
 
@@ -139,17 +139,17 @@ bool init_scheduling()
     }
 
     result = xTaskCreatePinnedToCore(
-        smokeDetectorTask,
-        "Smoke Detector Task",
-        SMOKE_DETECTOR_TASK_STACK_SIZE,
+        gasDetectorTask,
+        "Gas Detector Task",
+        GAS_DETECTOR_TASK_STACK_SIZE,
         NULL,
-        SMOKE_DETECTOR_TASK_PRIORITY,
-        &smokeDetectorTaskHandle,
-        SMOKE_DETECTOR_CORE);
+        GAS_DETECTOR_TASK_PRIORITY,
+        &gasDetectorTaskHandle,
+        GAS_DETECTOR_CORE);
 
     if (result != pdPASS)
     {
-        ESP_LOGE(SCHEDULING_TAG, "Failed to create Smoke Detector Task");
+        ESP_LOGE(SCHEDULING_TAG, "Failed to create Gas Detector Task");
         return false;
     }
 
@@ -203,11 +203,11 @@ void fireSensorTask(void *pvParameters)
     }
 }
 
-void smokeDetectorTask(void *pvParameters)
+void gasDetectorTask(void *pvParameters)
 {
     while (1)
     {
-        handle_smoke_detector();
-        vTaskDelay(SMOKE_DETECTOR_READ_FREQ / portTICK_PERIOD_MS);
+        handle_gas_detector();
+        vTaskDelay(GAS_DETECTOR_READ_FREQ / portTICK_PERIOD_MS);
     }
 }

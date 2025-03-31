@@ -1,7 +1,6 @@
 #include "door.hpp"
-#include <Arduino.h>
-#include "esp_log.h"
-#include <ESP32Servo.h>
+
+
 
 Servo doorServo;
 int servoPIN = 22; // GPIO pin connected to the servo
@@ -14,6 +13,7 @@ bool isOpen = false;
 #define DOOR_TAG "app_door"
 int currentPoz = 0;
 
+bool block = true; // assuming defaultly that there is no RFID card detected
 bool init_door()
 {
     pinMode(buttonDoor, INPUT_PULLUP);
@@ -45,7 +45,14 @@ void close_door()
 
 void handle_door()
 {
-    if (digitalRead(buttonDoor) == LOW && !isOpen ){
+    // If RFID card is not detected, the gate is blocked form usage:
+    if (!read_RFID()){
+        block = true;
+    } else{
+        block = false;
+    }    
+
+    if (digitalRead(buttonDoor) == LOW && !isOpen && !block){
         open_door();
     }
     if (digitalRead(buttonDoor) == LOW && isOpen){

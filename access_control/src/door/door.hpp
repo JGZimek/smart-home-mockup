@@ -1,5 +1,10 @@
 #pragma once
 
+#include <Arduino.h>
+#include "esp_log.h"
+#include <ESP32Servo.h>
+#include "../rfid/rfid.hpp"
+
 /**
  * @brief Initializes a Micro Servo using for door opening functionality.
  *

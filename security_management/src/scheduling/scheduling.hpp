@@ -9,7 +9,7 @@
 #include "../pir/pir.hpp"
 #include "../buzzer/buzzer.hpp"
 #include "../fire_sensor/fire_sensor.hpp"
-#include "../smoke_detector/smoke_detector.hpp"
+#include "../gas_detector/gas_detector.hpp"
 
 /* Task priorities */
 #define WIFI_TASK_PRIORITY 0
@@ -17,7 +17,7 @@
 #define PIR_TASK_PRIORITY 2
 #define BUZZER_TASK_PRIORITY 3
 #define FIRE_SENSOR_TASK_PRIORITY 4
-#define SMOKE_DETECTOR_TASK_PRIORITY 5
+#define GAS_DETECTOR_TASK_PRIORITY 5
 
 /* Core assignments */
 #define WIFI_CORE 0
@@ -25,7 +25,7 @@
 #define PIR_CORE 1
 #define BUZZER_CORE 0
 #define FIRE_SENSOR_CORE 1
-#define SMOKE_DETECTOR_CORE 1
+#define GAS_DETECTOR_CORE 1
 
 /* Task stack size */
 #define WIFI_TASK_STACK_SIZE 4096
@@ -33,7 +33,7 @@
 #define PIR_TASK_STACK_SIZE 4096
 #define BUZZER_TASK_STACK_SIZE 2048
 #define FIRE_SENSOR_TASK_STACK_SIZE 2048
-#define SMOKE_DETECTOR_TASK_STACK_SIZE 2048
+#define GAS_DETECTOR_TASK_STACK_SIZE 2048
 
 /* Event frequencies in ms */
 #define WIFI_RECONNECT_FREQ 1000
@@ -41,7 +41,7 @@
 #define PIR_READ_FREQ 100
 #define BUZZER_READ_FREQ 100
 #define FIRE_SENSOR_READ_FREQ 100
-#define SMOKE_DETECTOR_READ_FREQ 100
+#define GAS_DETECTOR_READ_FREQ 100
 
 /**
  * @brief Sets up the security system, initializes components, and starts scheduling.
@@ -110,10 +110,10 @@ void buzzerTask(void *pvParameters);
 void fireSensorTask(void *pvParameters);
 
 /**
- * @brief Task that handles smoke detector.
+ * @brief Task that handles gas detector.
  *
- * This task is responsible for handling the smoke detector.
+ * This task is responsible for handling the gas detector.
  *
  * @param pvParameters Task parameters
  */
-void smokeDetectorTask(void *pvParameters);
+void gasDetectorTask(void *pvParameters);

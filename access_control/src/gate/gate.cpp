@@ -1,7 +1,4 @@
 #include "gate.hpp"
-#include <Arduino.h>
-#include "esp_log.h"
-#include <ESP32Servo.h>
 
 // pins for the servo driver L9110
 #define IA1 18
@@ -10,6 +7,7 @@
 // bins for the buttons simulating triggers for the gate opening and closing
 int buttonGate = 4; 
 bool isClosed = true; // flag indicating if the gate is closed, default assumed true
+bool block = true; // assuming defaultly that there is no RFID card detected
 
 #define GATE_TAG "app_gate"
 bool init_gate(){
@@ -41,10 +39,18 @@ void close_gate(){
 }
 
 void handle_gate(){ 
-    if(digitalRead(buttonGate) == LOW && isClosed){
+
+    // If RFID card is not detected, the gate is blocked form usage:
+    if (!read_RFID()){
+        block = true;
+    } else{
+        block = false;
+    }
+
+    if(digitalRead(buttonGate) == LOW && isClosed && !block){
         open_gate();
     }
-    else if(digitalRead(buttonGate) == LOW && !isClosed){
+    else if(digitalRead(buttonGate) == LOW && !isClosed ){
         close_gate();
     }
 }
