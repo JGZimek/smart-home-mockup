@@ -5,6 +5,8 @@
 TaskHandle_t wifiTaskHandle = NULL;
 TaskHandle_t mqttTaskHandle = NULL;
 TaskHandle_t buttonTaskHandle = NULL;
+TaskHandle_t doorTaskHandle = NULL;
+TaskHandle_t gateTaskHandle = NULL;
 
 TaskHandle_t rfidTaskHandle = NULL;
 TaskHandle_t pinpadTaskHandle = NULL;
@@ -45,11 +47,25 @@ bool esp_setup()
         return false;
     }
 
+    if (!init_door())
+    {
+        ESP_LOGE(SCHEDULING_TAG, "Failed to initialize Door");
+        return false;
+    }
+
+    if (!init_gate())
+    {
+        ESP_LOGE(SCHEDULING_TAG, "Failed to initialize Gate");
+        return false;
+    }
+
     if (!init_scheduling())
     {
         ESP_LOGE(SCHEDULING_TAG, "Scheduling initialization failed.");
         return false;
     }
+
+    ESP_LOGI(SCHEDULING_TAG, "ESP32 system setup completed.");
     return true;
 }
 
