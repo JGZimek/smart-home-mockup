@@ -2,6 +2,7 @@
 
 #define SCHEDULING_TAG "app_scheduling"
 
+
 TaskHandle_t wifiTAskHandle = NULL;
 TaskHandle_t mqttTaskHandle = NULL;
 TaskHandle_t buttonTaskHandle = NULL;
