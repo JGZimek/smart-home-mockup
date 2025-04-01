@@ -2,15 +2,13 @@
 
 #define SCHEDULING_TAG "app_scheduling"
 
-TaskHandle_t wifiTaskHandle = NULL;
+TaskHandle_t wifiTAskHandle = NULL;
 TaskHandle_t mqttTaskHandle = NULL;
 TaskHandle_t buttonTaskHandle = NULL;
-TaskHandle_t doorTaskHandle = NULL;
-TaskHandle_t gateTaskHandle = NULL;
 
-TaskHandle_t rfidTaskHandle = NULL;
-TaskHandle_t pinpadTaskHandle = NULL;
-TaskHandle_t energyMonitorTaskHandle = NULL;
+TaskHandle_t fanControlTaskHandle = NULL;
+TaskHandle_t envMeasurementTaskHandle = NULL;
+TaskHandle_t ledControlTaskHandle = NULL;
 
 WiFiManager wifiManager;
 MqttManager mqttManager;
@@ -29,33 +27,21 @@ bool esp_setup()
     wifiManager.begin();
     mqttManager.begin();
 
-    if (!init_energy_monitor())
+    if (!init_fan_control())
     {
-        ESP_LOGE(SCHEDULING_TAG, "Energy monitor initialization failed.");
+        ESP_LOGE(SCHEDULING_TAG, "Fan control initialization failed.");
         return false;
     }
 
-    if (!init_RFID())
+    if (!init_env_measurement())
     {
-        ESP_LOGE(SCHEDULING_TAG, "RFID initialization failed.");
+        ESP_LOGE(SCHEDULING_TAG, "Environmental measurement initialization failed.");
         return false;
     }
 
-    if (!init_pinpad())
+    if (!init_led_control())
     {
-        ESP_LOGE(SCHEDULING_TAG, "Pinpad initialization failed.");
-        return false;
-    }
-
-    if (!init_door())
-    {
-        ESP_LOGE(SCHEDULING_TAG, "Failed to initialize Door");
-        return false;
-    }
-
-    if (!init_gate())
-    {
-        ESP_LOGE(SCHEDULING_TAG, "Failed to initialize Gate");
+        ESP_LOGE(SCHEDULING_TAG, "LED control initialization failed.");
         return false;
     }
 
@@ -65,7 +51,6 @@ bool esp_setup()
         return false;
     }
 
-    ESP_LOGI(SCHEDULING_TAG, "ESP32 system setup completed.");
     return true;
 }
 
@@ -96,7 +81,7 @@ bool init_scheduling()
         WIFI_TASK_STACK_SIZE,
         NULL,
         WIFI_TASK_PRIORITY,
-        &wifiTaskHandle,
+        &wifiTAskHandle,
         WIFI_TASK_CORE);
 
     if (result != pdPASS)
@@ -121,47 +106,47 @@ bool init_scheduling()
     }
 
     result = xTaskCreatePinnedToCore(
-        rfidTask,
-        "rfid_task",
-        RFID_TASK_STACK_SIZE,
+        fanControlTask,
+        "fan_control_task",
+        FAN_CONTROL_TASK_STACK_SIZE,
         NULL,
-        RFID_TASK_PRIORITY,
-        &rfidTaskHandle,
-        RFID_TASK_CORE);
+        FAN_CONTROL_TASK_PRIORITY,
+        &fanControlTaskHandle,
+        FAN_CONTROL_TASK_CORE);
 
     if (result != pdPASS)
     {
-        ESP_LOGE(SCHEDULING_TAG, "Failed to create rfid task.");
+        ESP_LOGE(SCHEDULING_TAG, "Failed to create fan control task.");
         return false;
     }
 
     result = xTaskCreatePinnedToCore(
-        pinpadTask,
-        "pinpad_task",
-        PINPAD_TASK_STACK_SIZE,
+        envMeasurementTask,
+        "env_measurement_task",
+        ENV_MEASUREMENT_TASK_STACK_SIZE,
         NULL,
-        PINPAD_TASK_PRIORITY,
-        &pinpadTaskHandle,
-        PINPAD_TASK_CORE);
+        ENV_MEASUREMENT_TASK_PRIORITY,
+        &envMeasurementTaskHandle,
+        ENV_MEASUREMENT_TASK_CORE);
 
     if (result != pdPASS)
     {
-        ESP_LOGE(SCHEDULING_TAG, "Failed to create pinpad task.");
+        ESP_LOGE(SCHEDULING_TAG, "Failed to create environmental measurement task.");
         return false;
     }
 
     result = xTaskCreatePinnedToCore(
-        energyMonitorTask,
-        "energy_monitor_task",
-        ENERGY_MONITOR_TASK_STACK_SIZE,
+        ledControlTask,
+        "led_control_task",
+        LED_CONTROL_TASK_STACK_SIZE,
         NULL,
-        ENERGY_MONITOR_TASK_PRIORITY,
-        &energyMonitorTaskHandle,
-        ENERGY_MONITOR_TASK_CORE);
+        LED_CONTROL_TASK_PRIORITY,
+        &ledControlTaskHandle,
+        LED_CONTROL_TASK_CORE);
 
     if (result != pdPASS)
     {
-        ESP_LOGE(SCHEDULING_TAG, "Failed to create energy monitor task.");
+        ESP_LOGE(SCHEDULING_TAG, "Failed to create led control task.");
         return false;
     }
 
@@ -171,54 +156,54 @@ bool init_scheduling()
 
 void wifiTask(void *pvParameters)
 {
-    while (1)
+    while (true)
     {
-        handle_wifi();
-        vTaskDelay(WIFI_RECONNECT_FREQ / portTICK_PERIOD_MS);
+        wifiManager.handle();
+        vTaskDelay(WIFI_EVENT_FREQUENCY / portTICK_PERIOD_MS);
     }
 }
 
 void mqttTask(void *pvParameters)
 {
-    while (1)
+    while (true)
     {
-        handle_mqtt();
-        vTaskDelay(MQTT_RECONNECT_FREQ / portTICK_PERIOD_MS);
+        mqttManager.handle();
+        vTaskDelay(MQTT_EVENT_FREQUENCY / portTICK_PERIOD_MS);
     }
 }
 
 void buttonTask(void *pvParameters)
 {
-    while (1)
+    while (true)
     {
-        handle_button();
-        vTaskDelay(BUTTON_EVENT_FREQ / portTICK_PERIOD_MS);
+        button.handle();
+        vTaskDelay(BUTTON_EVENT_FREQUENCY / portTICK_PERIOD_MS);
     }
 }
 
-void rfidTask(void *pvParameters)
+void fanControlTask(void *pvParameters)
 {
-    while (1)
+    while (true)
     {
-        handle_rfid();
-        vTaskDelay(RFID_EVENT_FREQ / portTICK_PERIOD_MS);
+        handle_fan_control();
+        vTaskDelay(FAN_CONTROL_EVENT_FREQUENCY / portTICK_PERIOD_MS);
     }
 }
 
-void pinpadTask(void *pvParameters)
+void envMeasurementTask(void *pvParameters)
 {
-    while (1)
+    while (true)
     {
-        handle_pinpad();
-        vTaskDelay(PINPAD_EVENT_FREQ / portTICK_PERIOD_MS);
+        handle_env_measurement();
+        vTaskDelay(ENV_MEASUREMENT_EVENT_FREQUENCY / portTICK_PERIOD_MS);
     }
 }
 
-void energyMonitorTask(void *pvParameters)
+void ledControlTask(void *pvParameters)
 {
-    while (1)
+    while (true)
     {
-        handle_energy_monitor();
-        vTaskDelay(ENERGY_MONITOR_EVENT_FREQ / portTICK_PERIOD_MS);
+        handle_led_control();
+        vTaskDelay(LED_CONTROL_EVENT_FREQUENCY / portTICK_PERIOD_MS);
     }
 }

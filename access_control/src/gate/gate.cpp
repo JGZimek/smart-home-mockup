@@ -1,4 +1,7 @@
 #include "gate.hpp"
+#include <Arduino.h>
+#include "esp_log.h"
+#include <ESP32Servo.h>
 
 // pins for the servo driver L9110
 #define IA1 18
@@ -37,14 +40,11 @@ void close_gate(){
     isClosed = true;
 }
 
-
-
 void handle_gate(){ 
-
-    if(digitalRead(buttonGate) == LOW && isClosed && mock_lock_open()){
+    if(digitalRead(buttonGate) == LOW && isClosed){
         open_gate();
     }
-    else if(digitalRead(buttonGate) == LOW && !isClosed && mock_lock_open()){
+    else if(digitalRead(buttonGate) == LOW && !isClosed){
         close_gate();
     }
 }

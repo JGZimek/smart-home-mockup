@@ -17,11 +17,8 @@ void setup()
 
   if (!esp_setup())
   {
-    ESP_LOGE(MAIN_TAG, "Security setup failed");
-    return;
+    ESP_LOGE(MAIN_TAG, "ESP32 setup failed. Halting.");
   }
-
-  // init_scheduling();
 }
 
 /**

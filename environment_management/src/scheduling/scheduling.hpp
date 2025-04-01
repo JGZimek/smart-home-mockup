@@ -10,45 +10,45 @@
 #include "../network/button/button.hpp"
 #include "../network/access_point/access_point.hpp"
 
-#include "../rfid/rfid.hpp"
-#include "../pinpad/pinpad.hpp"
-#include "../energy_monitor/energy_monitor.hpp"
+#include "../fan_control/fan_control.hpp"
+#include "../env_measurement/env_measurement.hpp"
+#include "../led_control/led_control.hpp"
 
 /* Task priorities */
 #define WIFI_TASK_PRIORITY 3
 #define MQTT_TASK_PRIORITY 1
 #define BUTTON_TASK_PRIORITY 2
 
-#define ENERGY_MONITOR_TASK_PRIORITY 4
-#define RFID_TASK_PRIORITY 1
-#define PINPAD_TASK_PRIORITY 2
+#define FAN_CONTROL_TASK_PRIORITY 1
+#define ENV_MEASUREMENT_TASK_PRIORITY 2
+#define LED_CONTROL_TASK_PRIORITY 3
 
 /* Core assignments */
 #define WIFI_TASK_CORE 0
 #define MQTT_TASK_CORE 1
 #define BUTTON_TASK_CORE 0
 
-#define ENERGY_MONITOR_TASK_CORE 1
-#define RFID_TASK_CORE 0
-#define PINPAD_TASK_CORE 1
+#define FAN_CONTROL_TASK_CORE 0
+#define ENV_MEASUREMENT_TASK_CORE 1
+#define LED_CONTROL_TASK_CORE 1
 
 /* Task stack size */
 #define WIFI_TASK_STACK_SIZE 4096
 #define MQTT_TASK_STACK_SIZE 4096
 #define BUTTON_TASK_STACK_SIZE 4096
 
-#define ENERGY_MONITOR_TASK_STACK_SIZE 4096
-#define RFID_TASK_STACK_SIZE 4096
-#define PINPAD_TASK_STACK_SIZE 4096
+#define FAN_CONTROL_TASK_STACK_SIZE 4096
+#define ENV_MEASUREMENT_TASK_STACK_SIZE 4096
+#define LED_CONTROL_TASK_STACK_SIZE 4096
 
 /* Event frequencies in ms */
 #define WIFI_EVENT_FREQUENCY 1000
 #define MQTT_EVENT_FREQUENCY 1000
 #define BUTTON_EVENT_FREQUENCY 100
 
-#define ENERGY_MONITOR_EVENT_FREQUENCY 1000
-#define RFID_EVENT_FREQUENCY 100
-#define PINPAD_EVENT_FREQUENCY 100
+#define FAN_CONTROL_EVENT_FREQUENCY 1000
+#define ENV_MEASUREMENT_EVENT_FREQUENCY 1000
+#define LED_CONTROL_EVENT_FREQUENCY 1000
 
 /**
  * @brief Setup function for the ESP32.
@@ -60,11 +60,11 @@
 bool esp_setup();
 
 /**
- * @brief Initializes the scheduling system.
+ * @brief Initialize the scheduling tasks.
  *
- * This function sets up the FreeRTOS tasks for the different modules.
+ * This function creates the FreeRTOS tasks for the scheduling module.
  *
- * @return true if initialization was successful, false otherwise.
+ * @return true if initialization was successful, false otherwise
  */
 bool init_scheduling();
 
@@ -96,28 +96,28 @@ void mqttTask(void *pvParameters);
 void buttonTask(void *pvParameters);
 
 /**
- * @brief Task function for handling energy monitor events.
+ * @brief Task function for handling fan control events.
  *
- * This function is responsible for handling energy monitor events in the background.
+ * This function is responsible for handling fan control events in the background.
  *
  * @param pvParameters pointer to task-specific data structure
  */
-void energyMonitorTask(void *pvParameters);
+void fanControlTask(void *pvParameters);
 
 /**
- * @brief Task function for handling RFID events.
+ * @brief Task function for handling environmental measurement events.
  *
- * This function is responsible for handling RFID events in the background.
+ * This function is responsible for handling environmental measurement events in the background.
  *
  * @param pvParameters pointer to task-specific data structure
  */
-void rfidTask(void *pvParameters);
+void envMeasurementTask(void *pvParameters);
 
 /**
- * @brief Task function for handling pinpad events.
+ * @brief Task function for handling LED control events.
  *
- * This function is responsible for handling pinpad events in the background.
+ * This function is responsible for handling LED control events in the background.
  *
  * @param pvParameters pointer to task-specific data structure
  */
-void pinpadTask(void *pvParameters);
+void ledControlTask(void *pvParameters);
