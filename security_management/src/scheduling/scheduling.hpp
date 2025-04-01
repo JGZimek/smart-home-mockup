@@ -138,9 +138,9 @@ void buzzerTask(void *pvParameters);
 void fireSensorTask(void *pvParameters);
 
 /**
- * @brief Task that handles smoke detector.
+ * @brief Task that handles gas detector.
  *
- * This task is responsible for handling the smoke detector.
+ * This task is responsible for handling the gas detector.
  *
  * @param pvParameters Task parameters
  */

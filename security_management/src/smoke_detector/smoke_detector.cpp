@@ -64,5 +64,3 @@ void handle_smoke_detector()
     }
     
 }
-
-

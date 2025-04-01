@@ -275,7 +275,7 @@ void fireSensorTask(void *pvParameters)
     }
 }
 
-void smokeDetectorTask(void *pvParameters)
+void gasDetectorTask(void *pvParameters)
 {
     while (1)
     {

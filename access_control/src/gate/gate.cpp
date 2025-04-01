@@ -11,7 +11,6 @@
 int buttonGate = 4; 
 bool isClosed = true; // flag indicating if the gate is closed, default assumed true
 
-
 #define GATE_TAG "app_gate"
 bool init_gate(){
     pinMode(IA1, OUTPUT);
